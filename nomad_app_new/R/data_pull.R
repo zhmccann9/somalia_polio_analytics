@@ -20,12 +20,13 @@ if (!grepl("^https?://", Sys.getenv("ODKC_URL"))) {
 }
 
 # Load libs if not already loaded (handles standalone sourcing)
-for (pkg in c("ruODK","dplyr","tidyr","lubridate","sf","httr","jsonlite","stringr","purrr","readxl")) {
+for (pkg in c("ruODK","dplyr","tidyr","lubridate","sf","httr","jsonlite","stringr","purrr","readxl","openxlsx")) {
   if (!requireNamespace(pkg, quietly = TRUE)) install.packages(pkg)
   library(pkg, character.only = TRUE)
 }
 
 if (!exists("normalise_district", mode = "function")) source("R/utils.R")
+source("R/outreach_sources.R")
 
 rename_flexible <- function(df, pattern, new_name) {
   col <- grep(pattern, names(df), value = TRUE, ignore.case = TRUE)[1]
@@ -146,7 +147,7 @@ camps_odk <- camps_raw |>
       !is.na(id) & nzchar(id), paste0("odk_", id),
       paste0("odk_row_", dplyr::row_number())
     ),
-    data_source = "odk"
+    data_source = "odk_live"
   )
 
 historical_camps <- historical_camps |>
@@ -201,7 +202,8 @@ outreach_raw <- ruODK::odata_submission_get(
   download     = FALSE,
 )
 
-kobo_path <- "data/kobo_outreach.xlsx"
+write_odk_outreach_csv(outreach_raw)
+message("  Saved fresh ODK outreach download to data/outreach_ODK.csv")
 
 # Rename ODK columns to final names BEFORE binding with KoBoToolbox
   
@@ -210,6 +212,8 @@ message("  ODK outreach cols: ", paste(sort(names(outreach_raw)), collapse = ", 
 outreach_raw <- outreach_raw |>
   # Core metrics
   rename_flexible("b_total_number_of_chil",             "zd_vaccinated") |>
+  rename_flexible("b_total_number_of_male",             "male_children_vaccinated") |>
+  rename_flexible("b_total_number_of_fema",             "female_children_vaccinated") |>
   rename_flexible("c_number_of_childr.*settlement$",    "zd_ri") |>
   rename_flexible("c_number_of_childr.*settlement_001", "zd_polio") |>
   # Date
@@ -226,52 +230,10 @@ outreach_raw <- outreach_raw |>
   
 message("  ODK outreach cols after rename: ", paste(sort(names(outreach_raw)), collapse = ", "))
   
-if (file.exists(kobo_path)) {
-  message("  Merging KoBoToolbox historical outreach (", kobo_path, ")...")
-  library(readxl)
-  kobo_raw <- readxl::read_excel(kobo_path)
-    
-  # Map KoBoToolbox label headers > ruodk column names
-  kobo_renamed <- kobo_raw |>
-    dplyr::rename(
-      out_date       = today,
-      a_district = District,
-      zd_vaccinated     = `Total number of zero dose children vaccinated during the outreach session?`,
-      zd_ri          = `Number of children with zero dose routine immunization (excluding Polio) found in the settlement`,
-      zd_polio       = `Number of children with zero polio doses found in the settlement`,
-      out_lat        = `_Geo-reference of the settlement outreach_latitude`,
-      out_lon        = `_Geo-reference of the settlement outreach_longitude`,
-      system_submission_date = `_submission_time`,
-      id             = `_id`
-    ) |>
-    dplyr::mutate(
-      id                     = as.character(paste0("kobo_", id)),
-      source                 = "kobo",
-      system_submission_date = lubridate::as_datetime(system_submission_date)
-    )
-  
-  outreach_raw <- dplyr::bind_rows(outreach_raw, kobo_renamed)
-  message("  Combined outreach records: ", nrow(outreach_raw),
-          " (ODK + KoBoToolbox)")
-  message("  Merged outreach cols: ", paste(sort(names(outreach_raw)), collapse = ", "))
-} else {
-  message("  No KoBoToolbox file found at ", kobo_path, " — using ODK data only.")
-  message("  ODK-only outreach cols: ", paste(sort(names(outreach_raw)), collapse = ", "))
-}
-
-  
-# Add source tag to ODK data
-outreach_raw <- outreach_raw |>
-  dplyr::mutate(
-    id                     = as.character(id),
-    source                 = "odk",
-    system_submission_date = lubridate::as_datetime(system_submission_date)
-  )
-
-# ── Merge KoBoToolbox historical outreach data ────────────────────────────────
-# The outreach form was previously on KoBoToolbox (same form ID ae2VmS6pPZjpYMec7Ck3eR).
-# Historical export saved as data/kobo_outreach.xlsx — map label headers to
-# the same ruodk column names produced by the ODK fetch above, then bind rows.
+outreach_sources <- read_outreach_sources(outreach_raw, parse_survey_date)
+outreach_raw <- outreach_sources$records
+message("  Outreach sources: Kobo through ", outreach_sources$kobo_cutoff,
+  "; live ODK after that (", nrow(outreach_raw), " selected sessions)")
 
 
 message("── [4/6] Loading district geometry from ArcGIS ──")
@@ -546,51 +508,18 @@ filter_year <- function(df, yr, date_col = "year") {
   else df |> dplyr::filter(.data[[date_col]] == as.integer(yr))
 }
 
-# ── Kobo vaccination totals and sex-count validation ─────────────────────────
-vaccination_path <- file.path("data", "kobo_vaccination_data.xlsx")
-if (!file.exists(vaccination_path)) {
-  stop("Kobo vaccination data file not found: ", vaccination_path)
-}
-
-kobo_vaccination_data <- readxl::read_excel(vaccination_path, guess_max = Inf)
-vaccination_columns <- c(
-  "today",
-  "District",
-  "Total number of children vaccinated during the outreach session?",
-  "Total number of Male children vaccinated during this outreach session?",
-  "Total number of Female children vaccinated during this outreach session?"
-)
-missing_vaccination_columns <- setdiff(vaccination_columns, names(kobo_vaccination_data))
-if (length(missing_vaccination_columns) > 0) {
-  stop("Kobo vaccination data is missing required columns: ",
-       paste(missing_vaccination_columns, collapse = ", "))
-}
-
-kobo_vaccination_records <- kobo_vaccination_data |>
+# ── Vaccination totals and sex-count validation ──────────────────────────────
+vaccination_records <- outreach |>
   dplyr::transmute(
-    source_row = dplyr::row_number(),
-    submission_id = if ("_id" %in% names(kobo_vaccination_data)) {
-      as.character(.data[["_id"]])
-    } else {
-      NA_character_
-    },
-    district = as.character(.data[["District"]]),
-    vaccination_date = parse_survey_date(.data[["today"]]),
-    year = lubridate::year(vaccination_date),
-    total_children_vaccinated = suppressWarnings(as.numeric(as.character(
-      .data[["Total number of children vaccinated during the outreach session?"]]
-    ))),
-    male_children_vaccinated = suppressWarnings(as.numeric(as.character(
-      .data[["Total number of Male children vaccinated during this outreach session?"]]
-    ))),
-    female_children_vaccinated = suppressWarnings(as.numeric(as.character(
-      .data[["Total number of Female children vaccinated during this outreach session?"]]
-    ))),
-    source = "kobo"
+    source_row, submission_id = as.character(id),
+    district = as.character(out_district), vaccination_date = out_date, year,
+    total_children_vaccinated = zd_vaccinated,
+    male_children_vaccinated, female_children_vaccinated, source, source_file
   )
 
-# Kobo export ends before camp_cutoff, so hand over to ODK the day after the last Kobo session
-vaccination_cutoff <- max(kobo_vaccination_records$vaccination_date, na.rm = TRUE)
+kobo_vaccination_records <- vaccination_records |>
+  dplyr::filter(source == "kobo")
+vaccination_cutoff <- outreach_sources$kobo_cutoff
 
 vaccination_mismatches <- kobo_vaccination_records |>
   dplyr::filter(
@@ -604,28 +533,8 @@ vaccination_mismatches <- kobo_vaccination_records |>
     difference = total_children_vaccinated - sex_count_total
   )
 
-odk_vaccination_records <- outreach |>
-  dplyr::filter(
-    !grepl("^kobo_", as.character(id)),
-    !is.na(out_date),
-    out_date > vaccination_cutoff
-  ) |>
-  dplyr::transmute(
-    source_row = NA_integer_,
-    submission_id = as.character(id),
-    district = as.character(out_district),
-    vaccination_date = out_date,
-    year = lubridate::year(out_date),
-    total_children_vaccinated = suppressWarnings(as.numeric(zd_vaccinated)),
-    male_children_vaccinated = NA_real_,
-    female_children_vaccinated = NA_real_,
-    source = "odk"
-  )
-
-vaccination_records <- dplyr::bind_rows(
-  kobo_vaccination_records,
-  odk_vaccination_records
-)
+odk_vaccination_records <- vaccination_records |>
+  dplyr::filter(source != "kobo")
 
 first_odk_vaccination <- suppressWarnings(min(odk_vaccination_records$vaccination_date, na.rm = TRUE))
 message("  Vaccination sources: Kobo through ", format(vaccination_cutoff, "%d %b %Y"),
@@ -704,6 +613,7 @@ kpi <- purrr::map(years, function(yr) {
 # ── ZD by district ────────────────────────────────────────────────────────────
 zd_by_dist <- purrr::map(years, function(yr) {
   filter_year(camps, yr) |>
+    dplyr::filter(!test_district) |>
     dplyr::group_by(district) |>
     dplyr::summarise(
       camps   = dplyr::n(),
@@ -791,7 +701,7 @@ out_by_dist <- purrr::map(years, function(yr) {
     dplyr::group_by(district = out_district) |>
     dplyr::summarise(
       sessions      = dplyr::n(),
-      zd_vaccinated = sum(zd_ri + zd_polio, na.rm = TRUE),
+      zd_vaccinated = sum(zd_vaccinated, na.rm = TRUE),
       zd_ri         = sum(zd_ri,      na.rm = TRUE),
       zd_polio      = sum(zd_polio,   na.rm = TRUE),
       vaccinated    = zd_vaccinated,              # <-- alias
@@ -819,6 +729,7 @@ perf_table <- purrr::map(years, function(yr) {
     dplyr::mutate(
       district = normalise_district(trimws(as.character(district)))
     ) |>
+    dplyr::filter(!is.na(district), tolower(district) != "test") |>
     dplyr::group_by(district) |>
     dplyr::summarise(
       zd_id = sum(z011, na.rm = TRUE),
@@ -830,6 +741,7 @@ perf_table <- purrr::map(years, function(yr) {
     dplyr::mutate(
       district = normalise_district(trimws(as.character(district)))
     ) |>
+    dplyr::filter(!is.na(district), tolower(district) != "test") |>
     dplyr::group_by(district) |>
     dplyr::summarise(
       sessions      = sum(sessions, na.rm = TRUE),
@@ -1118,6 +1030,9 @@ if (!is.null(districts_sf)) {
   districts_geojson <- NULL
   states_geojson    <- NULL
 }
+
+write_source_audit(camps, outreach)
+message("  Saved data/data_source_audit.xlsx")
 
 # ── Bundle and save ───────────────────────────────────────────────────────────
 nomad_data <- list(

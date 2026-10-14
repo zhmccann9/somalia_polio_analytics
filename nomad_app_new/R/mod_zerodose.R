@@ -111,6 +111,10 @@ zerodose_server <- function(id, data, year_filter, insights = NULL) {
   moduleServer(id, function(input, output, session) {
     ns  <- session$ns
     yr  <- reactive(year_filter())
+    district_rows <- function(d) {
+      d <- d[!is.na(d$district) & tolower(trimws(as.character(d$district))) != "test", ]
+      d[order(tolower(trimws(as.character(d$district)))), ]
+    }
     
     # ── AI insights ────────────────────────────────────────────────────────────
     if (!is.null(insights)) {
@@ -124,7 +128,9 @@ zerodose_server <- function(id, data, year_filter, insights = NULL) {
     output$zd_bar <- plotly::renderPlotly({
       d <- data$zd_by_dist[[yr()]]
       if (is.null(d) || nrow(d) == 0) return(plotly::plot_ly())
-      d <- d[order(d$z011 + d$z1259), ]
+      d <- district_rows(d)
+      if (nrow(d) == 0) return(plotly::plot_ly())
+      district_order <- sort(unique(as.character(d$district)))
       plotly::plot_ly(d,
                       y    = ~district, x = ~z011, type = "bar", orientation = "h",
                       name = "Zero-dose 0–11mo",
@@ -134,7 +140,8 @@ zerodose_server <- function(id, data, year_filter, insights = NULL) {
                           marker = list(color = "#f97316", opacity = 0.8)) |>
         plotly::layout(
           barmode = "group",
-          yaxis   = list(title = "", automargin = TRUE),
+          yaxis   = list(title = "", automargin = TRUE,
+                         categoryorder = "array", categoryarray = rev(district_order)),
           xaxis   = list(title = "Zero-dose children"),
           legend  = list(orientation = "h", y = 1.08, x = 0,
                          xanchor = "left", yanchor = "bottom"),
@@ -147,7 +154,8 @@ zerodose_server <- function(id, data, year_filter, insights = NULL) {
     output$zd_rate_table_ui <- renderUI({
       d <- data$zd_by_dist[[yr()]]
       if (is.null(d) || nrow(d) == 0) return(p("No data"))
-      d <- d[order(-d$rate011), ]
+      d <- district_rows(d)
+      if (nrow(d) == 0) return(p("No data"))
       
       badge_class <- function(r, district) {
         if (is.na(district) || district == "Luuq") return("bdg b-gry")
@@ -265,7 +273,8 @@ zerodose_server <- function(id, data, year_filter, insights = NULL) {
     output$gap_table_ui <- renderUI({
       d <- data$perf_table[[yr()]]
       if (is.null(d)) return(p("No data"))
-      d <- d[order(-d$gap), ]
+      d <- district_rows(d)
+      if (nrow(d) == 0) return(p("No data"))
       
       rows <- lapply(seq_len(nrow(d)), function(i) {
         row      <- d[i, ]

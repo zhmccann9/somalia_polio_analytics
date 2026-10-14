@@ -1,3 +1,5 @@
+library(shiny)
+
 options(repos = c(
   ropensci = "https://ropensci.r-universe.dev",
   CRAN = "https://cloud.r-project.org"
@@ -8,5 +10,6 @@ rsconnect::deployApp(
   appDir      = ".",
   appName     = "nomad_app_v2",
   account     = "emro-polio-analytics",
+  dependencyResolution = "library",
   forceUpdate = TRUE
 )
