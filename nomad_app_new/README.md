@@ -8,7 +8,7 @@ install.packages(c(
   "shiny", "leaflet", "plotly", "DT",
   "dplyr", "tidyr", "lubridate", "sf",
   "httr", "jsonlite", "stringr", "purrr",
-  "ruODK", "tibble", "rsconnect"
+  "ruODK", "tibble", "rsconnect", "readxl", "openxlsx"
 ))
 ```
 
@@ -37,6 +37,40 @@ adjust the regex strings if field names differ.
 source("refresh_data.R")
 ```
 This writes `data/nomad_data.rds`.
+
+All outreach metrics use the same survey-date source windows:
+
+- `data/kobo_vaccination_data.xlsx`: through its last session date (25 May 2026).
+- Live ODK Central: all survey dates after the Kobo cutoff (currently
+  26 May 2026 onward), fetched on every refresh and combined with Kobo in memory.
+
+Every successful ODK outreach fetch overwrites `data/outreach_ODK.csv` with
+the complete fresh download, before filtering or combining with Kobo. This
+CSV is an output snapshot only; it is never read as a data source and need
+not exist before a refresh. Its headers follow the parsed ruODK field names.
+If the ODK fetch or CSV export fails, the refresh stops rather than using an
+old snapshot.
+
+The Kobo cutoff is recalculated from its workbook on each refresh. Missing survey dates
+are excluded with a warning; duplicate or missing selected submission IDs stop
+the refresh. Camp data retains its separate 31 July 2026 historical cutoff.
+
+The refresh also creates `data/data_source_audit.xlsx`, with source date rules,
+source/year summaries, metric definitions and record-level camp/outreach
+provenance. The audit excludes names and phone numbers.
+
+The **Zero-Dose Rate by District** table uses camp enumeration, not outreach:
+each age-group rate is `round(100 * sum(zero_dose) / sum(population), 1)` for
+the selected district/year, ignoring missing counts in each sum. Nonpositive
+denominators return `NA`. Camps counts survey records, not distinct camps.
+Status uses the rounded 0-11 month rate: Critical >=80%, High >=60%, Moderate
+>=30%, otherwise Low. Luuq's "Check data" label is hardcoded.
+
+Run the focused source/Excel checks from the app directory:
+
+```r
+source("tests/test_outreach_sources.R")
+```
 
 ### 5. Run locally
 ```r
