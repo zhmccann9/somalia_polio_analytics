@@ -140,13 +140,13 @@ generate_all_insights <- function(data, yr, session) {
       ),
       zd_summary = paste0(
         "Year: ", y, ". Zero-dose rates by district: ", top_zd, ". ",
-        "Total ZD children identified: ", fmt(kpi$zd_total), ". ",
+        "Estimated total ZD children identified: ", fmt(kpi$zd_total), ". ",
         "Children vaccinated through outreach: ", fmt(kpi$vaccinated), ". ",
         "Write a 2-sentence insight about the zero-dose burden and which districts need urgent action."
       ),
       coverage_gap = paste0(
         "Year: ", y, ". Outreach coverage gap: ", gap_pct, " of identified ZD children not reached. ",
-        "Total ZD identified: ", fmt(kpi$zd_total), ", vaccinated: ", fmt(kpi$vaccinated), ". ",
+        "Estimated ZD identified: ", fmt(kpi$zd_total), ", vaccinated: ", fmt(kpi$vaccinated), ". ",
         if (!is.null(pf)) paste0("Lowest coverage districts: ",
                                  paste(apply(head(pf[order(pf$cov_pct), ][pf[order(pf$cov_pct), ]$zd_id > 50, ], 3), 1,
                                              function(r) paste0(r["district"], " ", r["cov_pct"], "%")), collapse = ", "), ". ")
@@ -163,7 +163,7 @@ generate_all_insights <- function(data, yr, session) {
       report_actions = paste0(
         "Year: ", y, ". Programme summary: ",
         fmt(kpi$camps), " camps enumerated, ",
-        fmt(kpi$zd_total), " zero-dose children identified, ",
+        fmt(kpi$zd_total), " estimated zero-dose children identified, ",
         fmt(kpi$vaccinated), " vaccinated through outreach (",
         gap_pct, " gap). ",
         "Highest ZD districts: ", top_zd, ". ",

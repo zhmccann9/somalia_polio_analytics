@@ -44,7 +44,7 @@ report_server <- function(id, data, year_filter, insights = NULL) {
       }
       div(style = "display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px",
           stat_box(kpi$camps,      "Camps enumerated"),
-          stat_box(kpi$zd_total,   "Zero-dose children",    "var(--red)"),
+          stat_box(kpi$zd_total,   "Estimated zero-dose children", "var(--red)"),
           stat_box(kpi$vaccinated, "Children vaccinated",   "var(--green)")
       )
     })
@@ -76,7 +76,7 @@ report_server <- function(id, data, year_filter, insights = NULL) {
         "Period: ", yr_lbl, "\n\n",
         "HEADLINE NUMBERS\n",
         "  Camps enumerated:    ", format(kpi$camps,      big.mark = ","), "\n",
-        "  Zero-dose children:  ", format(kpi$zd_total,   big.mark = ","), "\n",
+        "  Estimated zero-dose children: ", format(kpi$zd_total, big.mark = ","), "\n",
         "  Children vaccinated: ", format(kpi$vaccinated, big.mark = ","), "\n",
         "  Outreach sessions:   ", format(kpi$sessions,   big.mark = ","), "\n\n",
         "See dashboard for full district breakdown and maps.\n"

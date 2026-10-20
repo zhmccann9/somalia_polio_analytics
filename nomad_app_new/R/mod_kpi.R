@@ -64,12 +64,16 @@ kpi_server <- function(id, data, year_filter) {
         <circle cx="24" cy="18" r="4" fill="#d97706"/>
       </svg>'
 
-      div(class = "kpi-bar",
-        make_card(icon_camps, kpi$camps,      "Camps enumerated"),
-        make_card(icon_pop,   kpi$pop,        "Total population"),
-        make_card(icon_zd,    kpi$zd_total,   "Zero-dose children identified", "#dc2626"),
-        make_card(icon_vacc,  kpi$vaccinated, "Children vaccinated (outreach)", "#059669"),
-        make_card(icon_sess,  kpi$sessions,   "Outreach sessions")
+      tagList(
+        div(class = "kpi-bar",
+          make_card(icon_camps, kpi$camps,      "Camps enumerated"),
+          make_card(icon_pop,   kpi$pop,        "Estimated population"),
+          make_card(icon_zd,    kpi$zd_total,   "Estimated zero-dose children", "#dc2626"),
+          make_card(icon_vacc,  kpi$vaccinated, "Children vaccinated (outreach)", "#059669"),
+          make_card(icon_sess,  kpi$sessions,   "Outreach sessions")
+        ),
+        div(style = "padding:6px 18px;font-size:11px;color:#718096;background:#fff",
+            "Population and zero-dose figures are estimates, not headcounts.")
       )
     })
   })

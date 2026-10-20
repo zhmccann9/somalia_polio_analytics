@@ -115,9 +115,9 @@ write_source_audit <- function(camps, outreach, path = "data/data_source_audit.x
   metric_sources <- tibble::tribble(
     ~dashboard_output, ~record_dataset, ~calculation,
     "Zero-dose rate table", "Camp enumeration", "100 * sum(zero-dose age-group count) / sum(age-group population); rounded to 1 decimal; NA if denominator <= 0",
-    "Zero-dose status", "Camp enumeration", "Uses rounded 0-11 rate: Critical >=80; High >=60; Moderate >=30; otherwise Low. Luuq always Check data (hardcoded).",
+    "Zero-dose status", "Camp enumeration", "Uses rounded 0-11 rate: Critical >=80; High >=60; Moderate >=30; otherwise Low.",
     "Camps enumerated", "Camp enumeration", "Number of survey records, not distinct camp codes",
-    "Population / zero-dose KPI", "Camp enumeration", "Sum of reported 0-11 and 12-59 month counts",
+    "Population / zero-dose KPI", "Camp enumeration", "Estimates based on the sum of reported 0-11 and 12-59 month counts; not headcounts",
     "Movement / access", "Camp enumeration", "Camp survey responses",
     "Vaccinated / sessions KPI", "Outreach", "Sum reported total vaccinated / number of selected sessions",
     "Monthly / district vaccination trends", "Outreach", "Sum reported total vaccinated by session date and district",

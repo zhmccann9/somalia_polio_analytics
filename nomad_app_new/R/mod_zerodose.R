@@ -157,15 +157,13 @@ zerodose_server <- function(id, data, year_filter, insights = NULL) {
       d <- district_rows(d)
       if (nrow(d) == 0) return(p("No data"))
       
-      badge_class <- function(r, district) {
-        if (is.na(district) || district == "Luuq") return("bdg b-gry")
+      badge_class <- function(r) {
         if (!is.na(r) && r >= 80) "bdg b-red"
         else if (!is.na(r) && r >= 60) "bdg b-org"
         else if (!is.na(r) && r >= 30) "bdg b-blu"
         else "bdg b-grn"
       }
-      badge_label <- function(r, district) {
-        if (is.na(district) || district == "Luuq") return("Check data")
+      badge_label <- function(r) {
         if (!is.na(r) && r >= 80) "Critical"
         else if (!is.na(r) && r >= 60) "High"
         else if (!is.na(r) && r >= 30) "Moderate"
@@ -175,23 +173,22 @@ zerodose_server <- function(id, data, year_filter, insights = NULL) {
       rows <- lapply(seq_len(nrow(d)), function(i) {
         row   <- d[i, ]
         dist  <- as.character(row$district)
-        warn  <- if (!is.na(dist) && dist == "Luuq") " \u26a0" else ""
         r0    <- as.numeric(row$rate011)
         r1    <- as.numeric(row$rate1259)
-        col   <- if (is.na(dist) || dist == "Luuq") "var(--muted)"
+        col   <- if (is.na(r0)) "var(--muted)"
         else if (!is.na(r0) && r0 >= 80) "var(--red)"
         else if (!is.na(r0) && r0 >= 60) "var(--orange)"
         else "var(--text)"
         tags$tr(
-          tags$td(style = "font-weight:500", paste0(dist, warn)),
+          tags$td(style = "font-weight:500", dist),
           tags$td(class = "tr mono", row$camps),
           tags$td(class = "tr",
                   tags$span(style = paste0("font-weight:600;color:", col),
                             paste0(r0, "%"))),
           tags$td(class = "tr", paste0(r1, "%")),
           tags$td(class = "tc",
-                  tags$span(class = badge_class(r0, dist),
-                            badge_label(r0, dist)))
+                  tags$span(class = badge_class(r0),
+                            badge_label(r0)))
         )
       })
       
@@ -281,9 +278,7 @@ zerodose_server <- function(id, data, year_filter, insights = NULL) {
         dist     <- as.character(row$district)
         cov      <- if (is.na(row$cov_pct) || is.null(row$cov_pct)) 0 else as.numeric(row$cov_pct)
         cov_col  <- if (!is.na(cov) && cov >= 80) "var(--green)" else if (!is.na(cov) && cov >= 50) "var(--orange)" else "var(--red)"
-        cov_str  <- if (!is.na(dist) && length(dist) == 1 && dist == "Luuq")
-          paste0(">", cov, "% \u26a0")
-        else paste0(ifelse(is.na(cov), "—", cov), "%")
+        cov_str  <- paste0(ifelse(is.na(cov), "—", cov), "%")
         gap_val  <- if (is.na(row$gap) || is.null(row$gap)) 0L else as.integer(row$gap)
         gap_html <- if (!is.na(gap_val) && gap_val > 0)
           tags$span(style = "color:var(--red);font-weight:600",

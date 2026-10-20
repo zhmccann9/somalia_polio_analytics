@@ -64,7 +64,8 @@ each age-group rate is `round(100 * sum(zero_dose) / sum(population), 1)` for
 the selected district/year, ignoring missing counts in each sum. Nonpositive
 denominators return `NA`. Camps counts survey records, not distinct camps.
 Status uses the rounded 0-11 month rate: Critical >=80%, High >=60%, Moderate
->=30%, otherwise Low. Luuq's "Check data" label is hardcoded.
+>=30%, otherwise Low. Population and zero-dose KPI totals are estimates from
+camp enumeration, not headcounts.
 
 Run the focused source/Excel checks from the app directory:
 
