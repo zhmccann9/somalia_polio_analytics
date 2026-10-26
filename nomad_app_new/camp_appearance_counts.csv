@@ -1,9 +1,9 @@
 "group_code","district","appearances"
-"DLW-MR-REER AHMED","Dolow",370
+"DLW-MR-REER AHMED","Dolow",371
 "ELW-GR","Elwak",266
 "LQ-MR-HOWRARSAME","Luuq",260
 "BLW-MR-HOWRARSAME","Belet-hawa",193
-"BLW-MR-FAQIYAQUB","Belet-hawa",171
+"BLW-MR-FAQIYAQUB","Belet-hawa",172
 "BLW-MR-REER AHMED","Belet-hawa",142
 "BR-MR-URMIDIG","Baardhere",108
 "BR-MR-TALXE","Baardhere",107
@@ -11,7 +11,7 @@
 "LQ-RW","Luuq",99
 "LQ-MR-REER AHMED","Luuq",96
 "ELW-MR-URMIDIG","Elwak",91
-"ELW-GR-TUUF","Elwak",88
+"ELW-GR-TUUF","Elwak",89
 "BLW-MR-REER HASSAN","Belet-hawa",80
 "BR-MR-REER DIINI","Baardhere",59
 "ELB-OG-AW-WA","El Barde",58
@@ -22,7 +22,7 @@
 "ELW-MR-HOWRARSAME","Elwak",37
 "BDD-OG-MK-MQ","Badhadhe",36
 "BLW-MR-CELI","Belet-hawa",36
-"ELW-GR-KURANYOW","Elwak",35
+"ELW-GR-KURANYOW","Elwak",36
 "ELB-OG-AW","El Barde",33
 "DLW-MR-REER DIINI","Dolow",31
 "LQ-MR-CELI","Luuq",31
@@ -68,12 +68,12 @@
 "BR-RW","Baardhere",11
 "GBH-MR-HOWRARSAME","Garbaharey",11
 "GBH-MR-REER HASSAN","Garbaharey",11
+"ELW-MR-GUMURWAAQ-REER HASSAN","Elwak",10
 "GBH-MR-WAQMAASHE","Garbaharey",10
 "BW-HW-HAWADLE-MACALIN WEYNE","Beledweyne",9
 "DLW-MR-CALI DHEERE","Dolow",9
 "DLW-MR-REER GARAD","Dolow",9
 "DLW-MR-REER OSMAN","Dolow",9
-"ELW-MR-GUMURWAAQ-REER HASSAN","Elwak",9
 "GBH-MR-HABAR CIISE","Garbaharey",9
 "LQ-MR-FAQIYAQUB","Luuq",9
 "LQ-MR-URMIDIG","Luuq",9
@@ -106,6 +106,7 @@
 "ELW-MR-REER AHMED","Elwak",5
 "ELW-MR-REER HASSAN-WAQMAASHE","Elwak",5
 "ELW-MR-REER OSMAN","Elwak",5
+"GBH-MR-REER OSMAN","Garbaharey",5
 "LQ-MR-ALI HUSSEIN","Luuq",5
 "LQ-MR-ELDEERE","Luuq",5
 "LQ-RW-GASAR GUDHE","Luuq",5
@@ -124,7 +125,6 @@
 "ELW-GR-SABDHAWE","Elwak",4
 "ELW-MR-REER DIINI","Elwak",4
 "ELW-MR-REER HASSAN-YUUSUF","Elwak",4
-"GBH-MR-REER OSMAN","Garbaharey",4
 "LQ-MR-RW","Luuq",4
 "BAI-ASH","Baidoa",3
 "BAI-HM","Baidoa",3
@@ -140,6 +140,7 @@
 "ELB-OG-WA","El Barde",3
 "ELW-MR-CALI DHEERE","Elwak",3
 "ELW-MR-CALI DHEERE-ISAAQ","Elwak",3
+"ELW-MR-CELI-ISAAQ","Elwak",3
 "ELW-MR-FAQIYAQUB-ISAAQ","Elwak",3
 "GBH-MR-CALI","Garbaharey",3
 "GBH-MR-TALXE","Garbaharey",3
@@ -173,7 +174,6 @@
 "ELB-OG-OW-WA","El Barde",2
 "ELB-RW-LU-SA","El Barde",2
 "ELW-DIR-FUGU MUXUMED","Elwak",2
-"ELW-MR-CELI-ISAAQ","Elwak",2
 "ELW-MR-GUMURWAAQ","Elwak",2
 "ELW-MR-INA NUUR","Elwak",2
 "ELW-MR-WAGARDHAC","Elwak",2
@@ -231,6 +231,7 @@
 "BR-RW-BQL","Baardhere",1
 "BR-RW-GAALJECEL","Baardhere",1
 "BR-RW-GELEDLE","Baardhere",1
+"BR-RW-LEY","Baardhere",1
 "BR-RW-MW","Baardhere",1
 "BW-A-H-WB","Beledweyne",1
 "BW-HW-AB-GAALJECEL","Beledweyne",1

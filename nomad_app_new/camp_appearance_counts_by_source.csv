@@ -291,17 +291,18 @@
 "historical","LQ-MR-MQ-REER HASSAN","Luuq",1
 "historical","LQ-OG","Luuq",1
 "historical","LQ-RW-GAWAWEYN","Luuq",1
-"odk_live","ELW-GR-TUUF","Elwak",18
+"odk_live","ELW-GR-TUUF","Elwak",19
 "odk_live","ELW-MR-URMIDIG","Elwak",14
 "odk_live","LQ-MR-HOWRARSAME","Luuq",14
 "odk_live","BW-HW-HAWADLE-MACALIN WEYNE","Beledweyne",9
-"odk_live","ELW-GR-KURANYOW","Elwak",8
-"odk_live","BLW-MR-FAQIYAQUB","Belet-hawa",7
+"odk_live","ELW-GR-KURANYOW","Elwak",9
+"odk_live","BLW-MR-FAQIYAQUB","Belet-hawa",8
 "odk_live","ELW-MR-IBRAAHIM-REER HASSAN","Elwak",6
 "odk_live","BR-MR-REER DIINI","Baardhere",4
 "odk_live","ELW-MR-REER HASSAN-YUUSUF","Elwak",4
 "odk_live","GBH-MR-REER SIYAAD","Garbaharey",4
 "odk_live","BW-HW-HAWADLE","Beledweyne",3
+"odk_live","ELW-MR-GUMURWAAQ-REER HASSAN","Elwak",3
 "odk_live","GBH-MR-REER DIINI","Garbaharey",3
 "odk_live","BAI-RW-LS","Baidoa",2
 "odk_live","BDD-MJ-ADEN-REER AHMED","Badhadhe",2
@@ -311,9 +312,10 @@
 "odk_live","BLW-MR-HOWRARSAME","Belet-hawa",2
 "odk_live","BW-HW-JIJEELE","Beledweyne",2
 "odk_live","DLW-MR-ISAAQ-REER AHMED","Dolow",2
-"odk_live","ELW-MR-GUMURWAAQ-REER HASSAN","Elwak",2
+"odk_live","ELW-MR-CELI-ISAAQ","Elwak",2
 "odk_live","ELW-MR-ISAAQ-TALXE","Elwak",2
 "odk_live","GBH-MR-INA NUUR","Garbaharey",2
+"odk_live","GBH-MR-REER OSMAN","Garbaharey",2
 "odk_live","LQ-MR-REER HASSAN","Luuq",2
 "odk_live","BAI-RW-HR","Baidoa",1
 "odk_live","BAI-RW-LW","Baidoa",1
@@ -326,21 +328,21 @@
 "odk_live","BR-MR-URMIDIG","Baardhere",1
 "odk_live","BR-MR-WAQMAASHE","Baardhere",1
 "odk_live","BR-RW-GELEDLE","Baardhere",1
+"odk_live","BR-RW-LEY","Baardhere",1
 "odk_live","BW-HW-ABDI-HAWADLE-YUUSUF","Beledweyne",1
 "odk_live","BW-HW-CAAFI-GAALJECEL","Beledweyne",1
 "odk_live","BW-HW-GAALJECEL-SUGOOW","Beledweyne",1
 "odk_live","BW-HW-JIJEELE-SHALASHAME","Beledweyne",1
+"odk_live","DLW-MR-REER AHMED","Dolow",1
 "odk_live","DLW-RW-GASAR GUDHE","Dolow",1
 "odk_live","ELB-OG-AW-WA","El Barde",1
 "odk_live","ELB-OG-OW-WA","El Barde",1
 "odk_live","ELB-RW-HA-SA","El Barde",1
-"odk_live","ELW-MR-CELI-ISAAQ","Elwak",1
 "odk_live","ELW-MR-FAQIYAQUB-ISAAQ","Elwak",1
 "odk_live","ELW-MR-INA NUUR-ISAAQ","Elwak",1
 "odk_live","ELW-MR-ISAAQ-WAGARDHAC","Elwak",1
 "odk_live","ELW-MR-REER HASSAN-WAQMAASHE","Elwak",1
 "odk_live","GBH-MR-HABAR CIISE","Garbaharey",1
-"odk_live","GBH-MR-REER OSMAN","Garbaharey",1
 "odk_live","LQ-JW-GAWAWEYN","Luuq",1
 "odk_live","LQ-MR-URMIDIG","Luuq",1
 "odk_live","LQ-OG-MK","Luuq",1

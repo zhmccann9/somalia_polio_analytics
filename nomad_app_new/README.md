@@ -67,6 +67,32 @@ the pull. Camps enumerated counts distinct group codes, so a group surveyed in
 more than one year is counted once in All time, and All time can be less than
 the sum of the years.
 
+#### Comparing enumerated records with valid group-code records
+
+Run `source(file.path("R", "compare.R"))` from the app directory to print the
+comparison and write `data/enum_vs_group_comparison.csv`. It reads the saved
+camp CSVs using the current pipeline's source cutoffs and cleaning, without
+contacting ODK or overwriting refresh outputs. The result is also available
+in R as `enum_vs_group`.
+
+- `enum_camps` counts all selected camp-survey records; `group_camps` counts
+  the records retained after unusable group codes are excluded. Neither is a
+  unique physical-camp count. `group_unique_codes` separately preserves the
+  distinct-group measure used by the dashboard's camp KPI.
+- `enum_pop` / `group_pop` and `enum_zd` / `group_zd` retain the KPI formulas:
+  sum each record's 0-11 + 12-59 month counts, ignoring missing row totals.
+  Repeat surveys remain included; these are not deduplicated headcounts.
+- `change_*` is group minus enum; `pct_change_*` expresses that difference
+  relative to enum, rounded to one decimal. A zero enum denominator gives `NA`.
+- Rows cover All time and each observed year, for All districts and each
+  district present in either method. Enum uses enumerator district; group
+  uses the code-derived district with the pipeline's enumerator fallback.
+  District differences therefore include reassignment as well as exclusions.
+- Missing districts are retained as `(Missing district)`. Test records remain
+  included, as in the KPI totals, so district and annual record/population/ZD
+  sums reconcile with the overall rows. Do not sum subtotals with detail rows.
+  Distinct groups across years are not additive.
+
 The **Zero-Dose Rate by District** table uses camp enumeration, not outreach:
 each age-group rate is `round(100 * sum(zero_dose) / sum(population), 1)` for
 the selected district/year, ignoring missing counts in each sum. Nonpositive
@@ -114,6 +140,7 @@ Run the focused source, group-code and Shiny module checks from the app director
 source("tests/test_outreach_sources.R")
 source("tests/test_group_codes.R")
 source("tests/test_zerodose.R")
+source(file.path("tests", "test_compare.R"))
 ```
 
 ### 5. Run locally
@@ -141,6 +168,7 @@ nomad_app/
 ├── R/
 │   ├── data_pull.R       ODK fetch → spatial join → aggregation
 │   ├── utils.R           Crosswalk + shared helpers
+│   ├── compare.R         Record-count and group-code comparison by year/district
 │   ├── mod_kpi.R         KPI cards module
 │   ├── mod_movement.R    Movement patterns tab
 │   ├── mod_zerodose.R    Zero dose & vaccination tab
