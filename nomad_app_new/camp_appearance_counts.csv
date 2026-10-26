@@ -598,6 +598,7 @@
 "BLW-MR-rer Hassan-001","Alango","Belet-hawa",1
 "BLW-MR-rerHassan-001","Al amin","Belet-hawa",1
 "BLW-MR-urmidig","Libi cad","Belet-hawa",1
+"BLW-Mr -Faqayaquub -001","Baraso","Belet-hawa",1
 "BLW-Mr -Horarsame-001","Halumo","Belet-hawa",1
 "BLW-Mr Cali-dheere,002","Warsan","Belet-hawa",1
 "BLW-Mr Faqayacqub -001","Bal cilan","Belet-hawa",1
@@ -625,6 +626,7 @@
 "BLW-Mr Rer Hassan-001","Ortable","Belet-hawa",1
 "BLW-Mr Rer Osman-001","Bisiq ijabo","Belet-hawa",1
 "BLW-Mr Urmidig-","Aqala Aar","Belet-hawa",1
+"BLW-Mr-Faqayaquub-001","Labi xaare","Belet-hawa",1
 "BLW-Mr-Hassan-001","Bushka xananta","Belet-hawa",1
 "BLW-Mr-Horarsame-001","Burjo yabis ","Belet-hawa",1
 "BLW-Mr-Horarsame-001","Ceel dhere","Belet-hawa",1
@@ -1434,6 +1436,7 @@
 "Br-rwh- 001","Buulo qansax","Baardhere",1
 "Br-rxawyn-002","War saamale","Baardhere",1
 "Br_ Mr _rd","Carmo","Baardhere",1
+"Br_Rx_ley-001","Galgal muudey","Baardhere",1
 "Br_mr _rd 002","Buulo cad","Baardhere",1
 "Br_mr_ rd","Carmo","Baardhere",1
 "Br_mr_004","Jafey","Baardhere",1
@@ -1923,6 +1926,7 @@
 "DLW-ISSAQ-MR-RER-AXMED-001","Migaag","Dolow",1
 "DLW-MR-Rer Ahmed-002","Gubata","Dolow",1
 "DLW-MR-Rer ahmed-002","Waranley","Dolow",1
+"DLW-MR-Rer- Ahmed-002","Giran gir","Baardhere",1
 "DLW-MR-Rer-Ahmed_002","Unaa","Dolow",1
 "DLW-MR-Rer-Siyad-002","Dayax","Dolow",1
 "DLW-Raraxwen-Gasar Guthee-002","Dhaygab","Dolow",1
@@ -2181,6 +2185,7 @@
 "ELB; OG :AW' WA","Hodon","El Barde",1
 "ELW-GR-Tuuf-002","Quracbima","Elwak",1
 "ELW-GR-Tuuf-002","calioyow","Elwak",1
+"ELW-GR-Tuuf-002","kulun gaab","Elwak",1
 "ELW-GR-Tuuf-003","waldirii","Elwak",1
 "ELW-Gr-002","Afisyon","Elwak",1
 "ELW-Gr-Tuuf-002","Gawaan","Elwak",1
@@ -2192,18 +2197,23 @@
 "ELW-MR-HASSAN-IBRAAHIM-002 ","Abdala-bala ","Elwak",1
 "ELW-MR-Urmidig-002","Araqe","Elwak",1
 "ELW-MR-Urmidig-002","Sanboray","Elwak",1
+"ELW-MR-Urmidig-002","warxoor","Elwak",1
 "ELW-MR-Urmidig-003","Qalaliyow ","Elwak",1
 "ELW-MR-Urmidig-003","jabicha","Elwak",1
+"ELW-Mr-Hassan-Gumurwaaq-002","Tuula sarmaan","Elwak",1
 "ELW-Mr-Hassan-Gumurwaq-002","Kurfa-kurfoow ","Elwak",1
 "ELW-Mr-Hassan-Ibraahim-002","War buri","Elwak",1
 "ELW-Mr-Hassan-Ibraahim-002","Welhare","Elwak",1
 "ELW-Mr-Hassan-Ibrahim-002","Waadi","Elwak",1
 "ELW-Mr-Hassan-Ree Yuusuf-002","Balan-baal","Elwak",1
+"ELW-Mr-Hassan-Ree Yuusuf-002","Waraycise","Elwak",1
 "ELW-Mr-Hassan-Ree yuusuf-002","Likooley","Elwak",1
 "ELW-Mr-Hassan-Ree-yuusuf-002","Qaranri","Elwak",1
 "ELW-Mr-Hassan-Waqmaashe-002"," Bashiira","Elwak",1
 "ELW-Mr-Isaaq-Cali-dheere-002","Joojoon","Elwak",1
+"ELW-Mr-Isaaq-Ceeli-002","Kooshinley","Elwak",1
 "ELW-Mr-Isaaq-Ceeli-002","Kukuma","Elwak",1
+"ELW-Mr-Isaaq-Faqayaquub-002","Jilbantaaw","Elwak",1
 "ELW-Mr-Isaaq-Ina nuur-002","Dibija","Elwak",1
 "ELW-Mr-Isaaq-Talxe-002","Hugurdhoble","Elwak",1
 "ELW-Mr-Isaaq-Wagardhac-002","Dhasa","Elwak",1
@@ -2238,6 +2248,7 @@
 "ELW_Gr_Tuuf_002","Dibiriq ","Elwak",1
 "ELW_Gr_Tuuf_002","Qorgala diima","Elwak",1
 "ELW_MR_ Hassan_ibrahim-002","Geesrebka cali gabod","Elwak",1
+"ELW_MR_HASSAN_GUMURWAAQ_002","Qabriga weyrax","Elwak",1
 "ELW_MR_HASSAN_IBRAHIM_002","Garse buta","Elwak",1
 "ELW_MR_URMIDIG_002","Bula qanjibu","Elwak",1
 "ELW_MR_URMIDIG_002","Salamac","Elwak",1
@@ -2424,6 +2435,7 @@
 "Elw_Gr_Tuuf_002","Cadad giri","Elwak",1
 "Elw_Gr_Tuuf_002","Degta Aw gedow","Elwak",1
 "Elw_Gr_Tuuf_002","Elbanda ","Elwak",1
+"Elw_Gr_Tuuf_002","Hulki dharkena","Elwak",1
 "Elw_Gr_Tuuf_002","IGIRO","Elwak",1
 "Elw_Gr_Tuuf_002","Komor sido","Elwak",1
 "Elw_Gr_Tuuf_002","Malka ida","Elwak",1
@@ -2433,10 +2445,12 @@
 "Elw_Gr_Tuuf_002 ","Qabri jure","Elwak",1
 "Elw_Gr_Tuuf_002 ","Qurac haliima ","Elwak",1
 "Elw_Gr_Tuuf_002 ","Seerliban","Elwak",1
+"Elw_Gr_kuraanyow_002","Bas waagaya","Elwak",1
 "Elw_Gr_kuranyow_002","Arda qaraari","Elwak",1
 "Elw_Gr_kuranyow_002","Awru diimtu","Elwak",1
 "Elw_Gr_kuranyow_002","Barakay","Elwak",1
 "Elw_Gr_kuranyow_002","Igiro","Elwak",1
+"Elw_Gr_kuranyow_002","Kaamun","Elwak",1
 "Elw_Gr_kuranyow_002","Maansa","Elwak",1
 "Elw_Gr_tuuf_002","Bula bisle","Elwak",1
 "Elw_MR_Hassan-Ibrahim _002","Wareslaman ","Elwak",1
@@ -2996,6 +3010,7 @@
 "GBH-marehan-Rer Diini-004","Towfiiq","Garbaharey",1
 "GBH-marehan-Rer lna nuur 004","Badbaado","Garbaharey",1
 "GBH-marehan-Rer siyaad -0003","Warcilaan","Garbaharey",1
+"GBH-marehan-Rerdiin-004","Libixaane","Garbaharey",1
 "GBH-marehan-Rerdiini-004","Fardhanan","Garbaharey",1
 "GBH-marehan-ceeli-002","Qurdhub","Garbaharey",1
 "GBH-marehan-faqayacqub-004","Dofarey","Garbaharey",1
@@ -3063,6 +3078,7 @@
 "Gbh-marehan-inanuur-006","Qobweene","Garbaharey",1
 "Gbh-marehan-reer osmaan-003","Baankacada","Garbaharey",1
 "Gbh-marehan-reer osmaan-004","Jafato","Garbaharey",1
+"Gbh-marehan-reer osmaan-004","Libikoore","Garbaharey",1
 "Gbh-marehan-reer osmaan-005","Turmuumin","Garbaharey",1
 "Gbh-marehan-reer osman-003","Dhuxunka cada","Garbaharey",1
 "Gbh-marehan-reer siyaad-006","Sirey","Garbaharey",1
@@ -3258,6 +3274,7 @@
 "LQ-MR-HW-001 ","Lama galaay","Luuq",1
 "LQ-MR-HW-001 ","Lamiley","Luuq",1
 "LQ-MR-HW-001  ","Qodqod ","Luuq",1
+"LQ-MR-HW-002","Dudumale","Luuq",1
 "LQ-MR-HW-002","War gaduudo ","Luuq",1
 "LQ-MR-HWR-001","Dudumale ","Luuq",1
 "LQ-MR-Horarsame-001","Dhogob","Luuq",1
@@ -3272,6 +3289,7 @@
 "LQ-MR-RH-001 ","Madawajo ","Luuq",1
 "LQ-MR-RH-002","Banhadila","Luuq",1
 "LQ-MR-RH-002","Banhadila ","Luuq",1
+"LQ-MR-RH-002","Garorre","Luuq",1
 "LQ-MR-RH-002","Qooqonta","Luuq",1
 "LQ-MR-RH-002 ","Madawajo ","Luuq",1
 "LQ-MR-Rahweyn-rahweyn-001","Abaqley","Luuq",1
@@ -3835,6 +3853,7 @@
 "br, Mr, rd, 002","busleey","Baardhere",1
 "br, Mr, rd, 002","buulo cad","Baardhere",1
 "br, Mr, rd, 002","cali cabdi","Baardhere",1
+"br-mr-faqayaquub-003","Afyar ","Baardhere",1
 "br-mr-hrsm-002","deg sagaar","Baardhere",1
 "hw-gj -ab","Camalow","Beledweyne",1
 "marehan Gedo bardera 002","Xodida","Baardhere",1
