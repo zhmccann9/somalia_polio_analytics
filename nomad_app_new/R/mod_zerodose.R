@@ -46,6 +46,19 @@ zerodose_ui <- function(id) {
         )
     ),
     
+    # Row 1b: ZD pooled by normalised group code
+    div(class = "card mb",
+        div(class = "card-header",
+            span(class = "card-title", "Zero-Dose by Group Code"),
+            span(class = "card-subtitle",
+                 "Camps pooled by DISTRICT-CLAN-SUBCLAN; revisits are summed"),
+            uiOutput(ns("group_excluded_label"))
+        ),
+        div(class = "card-body-flush", style = "max-height:360px;overflow-y:auto",
+            uiOutput(ns("zd_group_table_ui"))
+        )
+    ),
+
     # Row 2: Coverage gap map
     div(class = "card mb",
         div(class = "card-header",
@@ -111,6 +124,17 @@ zerodose_server <- function(id, data, year_filter, insights = NULL) {
   moduleServer(id, function(input, output, session) {
     ns  <- session$ns
     yr  <- reactive(year_filter())
+    has_group_codes <- !is.null(data$zd_by_group) &&
+      "group_code" %in% names(data$camp_gps)
+    refresh_message <- paste(
+      "Saved data is missing group-code fields. Showing previously saved district-based results;",
+      "group pooling and code exclusions are not yet applied.",
+      "Run refresh_data.R, then restart the app."
+    )
+    if (!has_group_codes) {
+      showNotification(refresh_message, type = "warning", duration = NULL,
+                       id = ns("group_data_refresh"))
+    }
     district_rows <- function(d) {
       d <- d[!is.na(d$district) & tolower(trimws(as.character(d$district))) != "test", ]
       d[order(tolower(trimws(as.character(d$district)))), ]
@@ -194,7 +218,8 @@ zerodose_server <- function(id, data, year_filter, insights = NULL) {
       
       tags$table(class = "zd-tbl",
                  tags$thead(tags$tr(
-                   tags$th("District"), tags$th(class="tr","Camps"),
+                   tags$th("District"),
+                   tags$th(class = "tr", if (has_group_codes) "Groups" else "Camps"),
                    tags$th(class="tr","Rate 0–11%"), tags$th(class="tr","Rate 12–59%"),
                    tags$th(class="tc","Status")
                  )),
@@ -202,6 +227,47 @@ zerodose_server <- function(id, data, year_filter, insights = NULL) {
       )
     })
     
+    # ── ZD by group code table ────────────────────────────────────────────────
+    output$zd_group_table_ui <- renderUI({
+      if (!has_group_codes) {
+        return(p(style = "padding:12px", refresh_message))
+      }
+      d <- data$zd_by_group[[yr()]]
+      if (is.null(d) || nrow(d) == 0) return(p(style = "padding:12px", "No data"))
+      fmt_rate <- function(r) ifelse(is.na(r), "—", paste0(r, "%"))
+      rows <- lapply(seq_len(nrow(d)), function(i) {
+        row <- d[i, ]
+        tags$tr(
+          tags$td(class = "mono", style = "font-weight:500", row$group_code),
+          tags$td(ifelse(is.na(row$district), "—", as.character(row$district))),
+          tags$td(class = "tr mono", row$visits),
+          tags$td(class = "tr mono", format(row$z011,  big.mark = ",")),
+          tags$td(class = "tr", fmt_rate(row$rate011)),
+          tags$td(class = "tr mono", format(row$z1259, big.mark = ",")),
+          tags$td(class = "tr", fmt_rate(row$rate1259))
+        )
+      })
+      tags$table(class = "zd-tbl",
+                 tags$thead(tags$tr(
+                   tags$th("Group code"), tags$th("District"), tags$th(class = "tr", "Visits"),
+                   tags$th(class = "tr", "ZD 0–11"), tags$th(class = "tr", "Rate 0–11%"),
+                   tags$th(class = "tr", "ZD 12–59"), tags$th(class = "tr", "Rate 12–59%")
+                 )),
+                 do.call(tags$tbody, rows)
+      )
+    })
+
+    output$group_excluded_label <- renderUI({
+      ex <- data$group_code_exclusions
+      if (is.null(ex) || nrow(ex) == 0) return(NULL)
+      if (yr() != "all") ex <- ex[!is.na(ex$sub_date) &
+                                   format(as.Date(ex$sub_date), "%Y") == yr(), ]
+      if (nrow(ex) == 0) return(NULL)
+      span(class = "muted",
+           title = "Listed in data/group_code_exclusions.csv",
+           paste0(nrow(ex), " record(s) excluded: number-only or unidentifiable group code"))
+    })
+
     # ── Gap map ───────────────────────────────────────────────────────────────
     output$gap_map <- renderLeaflet({
       basemap_key <- Sys.getenv("BASEMAP_API_KEY")
@@ -227,6 +293,10 @@ zerodose_server <- function(id, data, year_filter, insights = NULL) {
       cp <- cp[!is.na(cp$lat) & !is.na(cp$lon), ]
       
       if (nrow(cp) > 0) {
+        camp_labels <- paste0(cp$district, " | ZD: ", cp$zd_0to11 + cp$zd_12to59)
+        if ("group_code" %in% names(cp)) {
+          camp_labels <- paste0(cp$group_code, " | ", camp_labels)
+        }
         proxy |> addCircleMarkers(
           data      = cp,
           lng       = ~lon, lat = ~lat,
@@ -234,7 +304,7 @@ zerodose_server <- function(id, data, year_filter, insights = NULL) {
           fillColor = "#dc2626", fillOpacity = 0.75,
           color     = "#991b1b", weight = 1,
           group     = "zd_pts",
-          label     = ~paste0(district, " | ZD: ", zd_0to11 + zd_12to59)
+          label     = camp_labels
         )
       }
       

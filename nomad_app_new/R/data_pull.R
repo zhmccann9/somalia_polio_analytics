@@ -416,9 +416,6 @@ if (!is.na(lat_col) && !is.na(lon_col)) {
   message("  WARNING: no GPS columns found in camps form")
 }
 
-camps <- camps |>
-  dplyr::mutate(district = enum_district)
-
 # Use the form's survey date for both historical and ODK camp records.
 camps <- camps |>
   dplyr::mutate(
@@ -426,16 +423,59 @@ camps <- camps |>
     year = lubridate::year(sub_date)
   )
 
+# ── Group codes ───────────────────────────────────────────────────────────────
+# Camps are pooled by normalised group code (DISTRICT-CLAN-SUBCLAN) instead of
+# enumerator district. The district comes from the code itself, falling back to
+# the enumerator district when the code does not name one.
+group_codes <- normalise_group_codes(camps$camp_code, camps$enum_district)
+camps <- camps |>
+  dplyr::mutate(
+    group_code        = group_codes$group_code,
+    group_code_status = group_codes$group_code_status,
+    group_district_source = group_codes$group_district_source,
+    district          = group_codes$group_district
+  )
+
+group_code_crosswalk <- camps |>
+  dplyr::count(camp_code, group_code, group_code_status, district,
+               group_district_source, name = "appearances") |>
+  dplyr::arrange(group_code, dplyr::desc(appearances), camp_code)
+write_csv_safely(group_code_crosswalk, "data/group_code_crosswalk.csv", row.names = FALSE)
+
+group_code_exclusions <- camps |>
+  dplyr::filter(group_code_status != "ok") |>
+  dplyr::transmute(
+    id, data_source, sub_date, enum_district,
+    group_code_raw = camp_code,
+    reason = dplyr::recode(
+      group_code_status,
+      blank             = "Group code is blank",
+      numeric_only      = "Group code is only a number",
+      no_group_identity = "Group code has no clan or sub-clan"
+    )
+  )
+write_csv_safely(group_code_exclusions, "data/group_code_exclusions.csv", row.names = FALSE)
+if (nrow(group_code_exclusions) > 0) {
+  reason_counts <- table(group_code_exclusions$reason)
+  warning(nrow(group_code_exclusions), " camp record(s) excluded for unusable group codes (",
+          paste(names(reason_counts), reason_counts, sep = ": ", collapse = "; "),
+          "); see data/group_code_exclusions.csv", call. = FALSE)
+}
+
+camps <- dplyr::filter(camps, group_code_status == "ok")
+message("  Pooled ", nrow(camps), " camp records into ",
+        dplyr::n_distinct(camps$group_code), " group codes (",
+        dplyr::n_distinct(camps$camp_code), " raw spellings); ",
+        "see data/group_code_crosswalk.csv")
+
 camp_appearance_counts <- camps |>
-  dplyr::filter(!is.na(camp_code), trimws(camp_code) != "") |>
-  dplyr::count(camp_code, camp_name, district, name = "appearances") |>
-  dplyr::arrange(dplyr::desc(appearances), camp_code)
+  dplyr::count(group_code, district, name = "appearances") |>
+  dplyr::arrange(dplyr::desc(appearances), group_code)
 write_csv_safely(camp_appearance_counts, "camp_appearance_counts.csv", row.names = FALSE)
 
 camp_appearance_counts_by_source <- camps |>
-  dplyr::filter(!is.na(camp_code), trimws(camp_code) != "") |>
-  dplyr::count(data_source, camp_code, camp_name, district, name = "appearances") |>
-  dplyr::arrange(data_source, dplyr::desc(appearances), camp_code)
+  dplyr::count(data_source, group_code, district, name = "appearances") |>
+  dplyr::arrange(data_source, dplyr::desc(appearances), group_code)
 write_csv_safely(camp_appearance_counts_by_source,
                  "camp_appearance_counts_by_source.csv", row.names = FALSE)
 message("  Wrote camp appearance summaries to the working directory")
@@ -598,7 +638,8 @@ kpi <- purrr::map(years, function(yr) {
   vaccination_yr <- filter_year(vaccination_by_year, yr)
   total_vaccinated <- sum(vaccination_yr$total_children_vaccinated, na.rm = TRUE)
   list(
-    camps      = nrow(c_yr),
+    camps      = dplyr::n_distinct(c_yr$group_code),
+    surveys    = nrow(c_yr),
     pop        = sum(c_yr$pop_0to11 + c_yr$pop_12to59, na.rm = TRUE),
     zd_total   = sum(c_yr$zd_0to11 + c_yr$zd_12to59, na.rm = TRUE),
     zd_011     = sum(c_yr$zd_0to11,  na.rm = TRUE),
@@ -609,18 +650,55 @@ kpi <- purrr::map(years, function(yr) {
   )
 }) |> purrr::set_names(years)
 
+# Values shown in the KPI header cards (R/mod_kpi.R) for each year filter
+kpi_headers <- tibble::tibble(
+  Year                             = dplyr::if_else(years == "all", "All time", years),
+  `Camps enumerated`               = unname(purrr::map_dbl(kpi, "camps")),
+  `Estimated population`           = unname(purrr::map_dbl(kpi, "pop")),
+  `Estimated zero-dose children`   = unname(purrr::map_dbl(kpi, "zd_total")),
+  `Children vaccinated (outreach)` = unname(purrr::map_dbl(kpi, "vaccinated")),
+  `Outreach sessions`              = unname(purrr::map_dbl(kpi, "sessions"))
+)
+message("  KPI header values by year:")
+print(format(as.data.frame(kpi_headers), big.mark = ","), row.names = FALSE)
+if (write_csv_safely(kpi_headers, "data/kpi_headers_by_year.csv", row.names = FALSE)) {
+  message("  Saved data/kpi_headers_by_year.csv")
+}
+
+
+# ── ZD by group code ──────────────────────────────────────────────────────────
+# Revisits to the same group are summed: each visit counts the people present.
+zd_by_group <- purrr::map(years, function(yr) {
+  filter_year(camps, yr) |>
+    dplyr::filter(!test_district) |>
+    dplyr::group_by(group_code, district) |>
+    dplyr::summarise(
+      visits    = dplyr::n(),
+      raw_codes = dplyr::n_distinct(camp_code),
+      t011      = sum(pop_0to11,  na.rm = TRUE),
+      z011      = sum(zd_0to11,   na.rm = TRUE),
+      t1259     = sum(pop_12to59, na.rm = TRUE),
+      z1259     = sum(zd_12to59,  na.rm = TRUE),
+      .groups   = "drop"
+    ) |>
+    dplyr::mutate(
+      rate011  = safe_pct(z011,  t011),
+      rate1259 = safe_pct(z1259, t1259)
+    ) |>
+    dplyr::arrange(dplyr::desc(z011 + z1259), group_code)
+}) |> purrr::set_names(years)
 
 # ── ZD by district ────────────────────────────────────────────────────────────
 zd_by_dist <- purrr::map(years, function(yr) {
-  filter_year(camps, yr) |>
-    dplyr::filter(!test_district) |>
+  zd_by_group[[yr]] |>
     dplyr::group_by(district) |>
     dplyr::summarise(
-      camps   = dplyr::n(),
-      t011    = sum(pop_0to11,  na.rm = TRUE),
-      z011    = sum(zd_0to11,   na.rm = TRUE),
-      t1259   = sum(pop_12to59, na.rm = TRUE),
-      z1259   = sum(zd_12to59,  na.rm = TRUE),
+      camps   = dplyr::n_distinct(group_code),
+      visits  = sum(visits),
+      t011    = sum(t011),
+      z011    = sum(z011),
+      t1259   = sum(t1259),
+      z1259   = sum(z1259),
       .groups = "drop"
     ) |>
     dplyr::mutate(
@@ -903,7 +981,7 @@ dist_monthly <- outreach |>
 
 camp_gps <- camps |>
   dplyr::filter(!test_district, !is.na(lat), !is.na(lon), lat != 0, lon != 0) |>
-  dplyr::select(id, lat, lon, district = enum_district, year,
+  dplyr::select(id, lat, lon, district, group_code, year,
                 zd_0to11, zd_12to59, pop_0to11, pop_12to59)
 
 if (!is.null(districts_sf) && nrow(camp_gps) > 0) {
@@ -1043,6 +1121,8 @@ nomad_data <- list(
   vaccination_by_district_year = vaccination_by_district_year,
   vaccination_mismatches = vaccination_mismatches,
   zd_by_dist        = zd_by_dist,
+  zd_by_group       = zd_by_group,
+  group_code_exclusions = group_code_exclusions,
   flows             = flows,
   indegree          = indegree,
   seasons           = seasons,

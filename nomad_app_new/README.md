@@ -59,18 +59,61 @@ The refresh also creates `data/data_source_audit.xlsx`, with source date rules,
 source/year summaries, metric definitions and record-level camp/outreach
 provenance. The audit excludes names and phone numbers.
 
+It also prints the KPI header values (Camps enumerated, Estimated population,
+Estimated zero-dose children, Children vaccinated (outreach), Outreach
+sessions) for each year filter and saves them to
+`data/kpi_headers_by_year.csv`, so the dashboard header can be checked against
+the pull. Camps enumerated counts distinct group codes, so a group surveyed in
+more than one year is counted once in All time, and All time can be less than
+the sum of the years.
+
 The **Zero-Dose Rate by District** table uses camp enumeration, not outreach:
 each age-group rate is `round(100 * sum(zero_dose) / sum(population), 1)` for
 the selected district/year, ignoring missing counts in each sum. Nonpositive
-denominators return `NA`. Camps counts survey records, not distinct camps.
+denominators return `NA`. The Groups/Camps count is the number of distinct
+normalised group codes (see below), not survey records.
 Status uses the rounded 0-11 month rate: Critical >=80%, High >=60%, Moderate
 >=30%, otherwise Low. Population and zero-dose KPI totals are estimates from
 camp enumeration, not headcounts.
 
-Run the focused source/Excel checks from the app directory:
+#### Group codes
+Camp records are pooled by group code instead of enumerator district. Raw codes
+(`community_level-group-group_code`) are free text such as `LQ-MR-HW-001`,
+`Luuq-Marehan-Horarsame-001` or `Belet-hawa, MR, Rer Ahmed, 002`.
+`normalise_group_codes()` in `R/utils.R` converts them to
+`DISTRICT-CLAN-SUBCLAN` (e.g. `LQ-MR-HOWRARSAME`):
+
+- Codes are split into words; the trailing number is dropped, so every visit
+  to the same group is pooled and summed.
+- District, clan and sub-clan words are matched against the dictionaries in
+  `utils.R` (`GROUP_CODE_DISTRICT_ALIASES`, `GROUP_CODE_CLAN_ALIASES`,
+  `GROUP_CODE_SUBCLANS`, `GROUP_CODE_SUBCLAN_ABBREVIATIONS`): exact
+  abbreviation first, then a Somali phonetic key (x=h, q=k, c dropped, doubled
+  letters collapsed), then edit distance within 30% of the word length.
+  Unrecognised words are clustered the same way across all codes.
+- The code's district is used for district tables; when the code names no
+  district the enumerator district is used.
+- Codes that are only a number, blank, or have no clan/sub-clan (e.g.
+  `Belet xawa 000`, `Others`) are excluded and listed with their reason in
+  `data/group_code_exclusions.csv`.
+
+Every refresh writes `data/group_code_crosswalk.csv` (raw spelling →
+normalised code). Review it and add spellings to the dictionaries when a
+group is split or merged incorrectly.
+
+An older `data/nomad_data.rds` can still be opened: the app keeps its saved
+district-based results and district-only map labels, and displays a refresh
+warning. The district table retains its old **Camps** (survey records) label;
+these results have not yet applied group pooling or group-code exclusions.
+Run `source("refresh_data.R")` from the app directory, then restart the app
+to load the new group-code data. Updating the code alone does not rebuild the RDS.
+
+Run the focused source, group-code and Shiny module checks from the app directory:
 
 ```r
 source("tests/test_outreach_sources.R")
+source("tests/test_group_codes.R")
+source("tests/test_zerodose.R")
 ```
 
 ### 5. Run locally
