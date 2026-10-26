@@ -67,31 +67,20 @@ the pull. Camps enumerated counts distinct group codes, so a group surveyed in
 more than one year is counted once in All time, and All time can be less than
 the sum of the years.
 
-#### Comparing enumerated records with valid group-code records
+To compare these camp KPIs with the enumerated-camp method used before group
+codes, run `source("R/compare.R")` from the app directory after a refresh. It
+replays the camp steps of `data_pull.R` on the saved camp data (no ODK
+connection; refresh outputs are not overwritten), prints the comparison and
+writes `data/enum_vs_group_comparison.csv` with one row for All time and one
+per year:
 
-Run `source(file.path("R", "compare.R"))` from the app directory to print the
-comparison and write `data/enum_vs_group_comparison.csv`. It reads the saved
-camp CSVs using the current pipeline's source cutoffs and cleaning, without
-contacting ODK or overwriting refresh outputs. The result is also available
-in R as `enum_vs_group`.
-
-- `enum_camps` counts all selected camp-survey records; `group_camps` counts
-  the records retained after unusable group codes are excluded. Neither is a
-  unique physical-camp count. `group_unique_codes` separately preserves the
-  distinct-group measure used by the dashboard's camp KPI.
-- `enum_pop` / `group_pop` and `enum_zd` / `group_zd` retain the KPI formulas:
-  sum each record's 0-11 + 12-59 month counts, ignoring missing row totals.
-  Repeat surveys remain included; these are not deduplicated headcounts.
-- `change_*` is group minus enum; `pct_change_*` expresses that difference
-  relative to enum, rounded to one decimal. A zero enum denominator gives `NA`.
-- Rows cover All time and each observed year, for All districts and each
-  district present in either method. Enum uses enumerator district; group
-  uses the code-derived district with the pipeline's enumerator fallback.
-  District differences therefore include reassignment as well as exclusions.
-- Missing districts are retained as `(Missing district)`. Test records remain
-  included, as in the KPI totals, so district and annual record/population/ZD
-  sums reconcile with the overall rows. Do not sum subtotals with detail rows.
-  Distinct groups across years are not additive.
+- `enum_camps`, `enum_pop`, `enum_zd`: every camp survey record counts as a
+  camp; population and zero-dose (0-11 + 12-59 months) are summed over all
+  records.
+- `group_camps`, `group_pop`, `group_zd`: the dashboard KPI values (distinct
+  group codes; records with excluded group codes dropped).
+- `change_*` is group minus enum; `pct_change_*` is that change as a
+  percentage of enum.
 
 The **Zero-Dose Rate by District** table uses camp enumeration, not outreach:
 each age-group rate is `round(100 * sum(zero_dose) / sum(population), 1)` for
@@ -168,7 +157,7 @@ nomad_app/
 ├── R/
 │   ├── data_pull.R       ODK fetch → spatial join → aggregation
 │   ├── utils.R           Crosswalk + shared helpers
-│   ├── compare.R         Record-count and group-code comparison by year/district
+│   ├── compare.R         Enumerated-camp vs group-code KPI comparison
 │   ├── mod_kpi.R         KPI cards module
 │   ├── mod_movement.R    Movement patterns tab
 │   ├── mod_zerodose.R    Zero dose & vaccination tab
