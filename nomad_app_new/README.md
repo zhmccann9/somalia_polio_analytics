@@ -81,12 +81,38 @@ shiny::runApp()
 ### 6. Deploy to shinyapps.io
 ```r
 rsconnect::setAccountInfo(name="<account>", token="<token>", secret="<secret>")
-rsconnect::deployApp(
-  appFiles = c("app.R", "global.R", "R/", "www/", "data/nomad_data.rds")
-)
+source("deploy.R")
 ```
-The `.Renviron` and raw ODK credentials are **not** deployed — only the
-pre-built RDS. Refresh locally and redeploy when you want updated data.
+Use `deploy.R` rather than an unrestricted `deployApp()` call. It resolves
+the app directory from the script's location, so sourcing its absolute path
+also works from another working directory. It deploys only the entry point,
+global setup, runtime R modules, stylesheet and pre-built `data/nomad_data.rds`.
+Missing runtime files stop deployment before upload.
+
+The local `.Renviron`, `.RData`, raw surveys, audit/comparison outputs, media,
+tests and refresh scripts are **not** deployed. Refresh locally and redeploy
+when you want updated data.
+
+AI insights need `ANTHROPIC_API_KEY` and the basemaps use `BASEMAP_API_KEY`.
+shinyapps.io does not support `deployApp(envVars = ...)`, so `deploy.R` stages
+the runtime files in a temporary folder and writes a minimal `.Renviron` there.
+That file contains **only** those two keys, which are read from the local
+`.Renviron` (or the current R session). `global.R` loads it on the server.
+ODK credentials are never bundled. Deployment stops before upload if either
+key is missing. The temporary folder is deleted afterwards, and the existing
+deployment record in `rsconnect/` is still used.
+
+A connection reset while uploading to `shinyapps-upload.s3.amazonaws.com`
+is an upload/transport failure, not an R build error. Retry the smaller bundle
+with `deploy.R`. If it still resets, check the network/proxy with your IT team
+or try another approved connection. Do not disable TLS verification.
+
+Validate packaging, the runtime-keys-only `.Renviron` and staged startup
+without uploading (from the app directory; uses fake keys):
+
+```r
+source(file.path("tests", "test_deploy.R"))
+```
 
 ## File structure
 ```
