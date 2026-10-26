@@ -13,3 +13,5 @@ rsconnect::deployApp(
   dependencyResolution = "library",
   forceUpdate = TRUE
 )
+
+#when asked select Y

@@ -66,7 +66,7 @@ kpi_server <- function(id, data, year_filter) {
 
       tagList(
         div(class = "kpi-bar",
-          make_card(icon_camps, kpi$camps,      "Camps enumerated"),
+          make_card(icon_camps, kpi$camps,      "Camps (group code)"),
           make_card(icon_pop,   kpi$pop,        "Estimated population"),
           make_card(icon_zd,    kpi$zd_total,   "Estimated zero-dose children", "#dc2626"),
           make_card(icon_vacc,  kpi$vaccinated, "Children vaccinated (outreach)", "#059669"),
