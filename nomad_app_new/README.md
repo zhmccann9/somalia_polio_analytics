@@ -83,36 +83,23 @@ shiny::runApp()
 rsconnect::setAccountInfo(name="<account>", token="<token>", secret="<secret>")
 source("deploy.R")
 ```
-Use `deploy.R` rather than an unrestricted `deployApp()` call. It resolves
-the app directory from the script's location, so sourcing its absolute path
-also works from another working directory. It deploys only the entry point,
-global setup, runtime R modules, stylesheet and pre-built `data/nomad_data.rds`.
-Missing runtime files stop deployment before upload.
+Run `deploy.R` from the app folder. `appFiles` uploads only what the app needs
+(about 0.5 MB): the entry point, global setup, runtime R modules, stylesheet,
+pre-built `data/nomad_data.rds` and `.Renviron`. Raw surveys, `.RData`,
+outputs, tests and refresh scripts stay local. If you add a runtime file (for
+example a new module), add it to `appFiles`.
 
-The local `.Renviron`, `.RData`, raw surveys, audit/comparison outputs, media,
-tests and refresh scripts are **not** deployed. Refresh locally and redeploy
-when you want updated data.
+`.Renviron` is uploaded because `global.R` reads `ANTHROPIC_API_KEY` (AI
+insights) and `BASEMAP_API_KEY` (basemaps) from it; shinyapps.io has no other
+way to set environment variables. The ODK credentials in the same file are
+uploaded too.
 
-AI insights need `ANTHROPIC_API_KEY` and the basemaps use `BASEMAP_API_KEY`.
-shinyapps.io does not support `deployApp(envVars = ...)`, so `deploy.R` stages
-the runtime files in a temporary folder and writes a minimal `.Renviron` there.
-That file contains **only** those two keys, which are read from the local
-`.Renviron` (or the current R session). `global.R` loads it on the server.
-ODK credentials are never bundled. Deployment stops before upload if either
-key is missing. The temporary folder is deleted afterwards, and the existing
-deployment record in `rsconnect/` is still used.
+`dependencyResolution = "library"` uses your installed packages instead of
+`renv.lock`, avoiding the "Library and lockfile are out of sync" error.
 
 A connection reset while uploading to `shinyapps-upload.s3.amazonaws.com`
-is an upload/transport failure, not an R build error. Retry the smaller bundle
-with `deploy.R`. If it still resets, check the network/proxy with your IT team
-or try another approved connection. Do not disable TLS verification.
-
-Validate packaging, the runtime-keys-only `.Renviron` and staged startup
-without uploading (from the app directory; uses fake keys):
-
-```r
-source(file.path("tests", "test_deploy.R"))
-```
+is a network failure, not an R error. Retry `deploy.R`; if it keeps happening,
+check the network/proxy with your IT team. Do not disable TLS verification.
 
 ## File structure
 ```
